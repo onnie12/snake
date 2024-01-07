@@ -8,7 +8,6 @@ const container = new PIXI.Container();
 
 app.stage.addChild(container);
 document.addEventListener('keydown', onKeyDown);
-
 // Create a new texture
 const texture_head = PIXI.Texture.from('snake_head.png');
 const texture_body = PIXI.Texture.from('snake_body.png');
@@ -34,12 +33,17 @@ const tilingSprite = new PIXI.TilingSprite(
     app.screen.width,
     app.screen.height,
 );
+
 container.addChild(tilingSprite);
-let x=10; 
-let y=10;
-let direction = "left"
+let x=50; 
+let y=50;
+let direction = "right"
 let apple_x = 250;
 let apple_y = 250;
+let snake=[]
+let length=5;
+let game_started = false
+let points = 0;
 sprite_apple.x = apple_x
 sprite_apple.y = apple_y
 container.addChild(sprite_apple)
@@ -54,9 +58,28 @@ function testForAABB(object1, object2)
         && bounds1.y < bounds2.y + 25
         && bounds1.y + 25 > bounds2.y;
 }
+function end_game(){
+    x=50; 
+    y=50;
+    direction = "right"
+    apple_x = 250;
+    apple_y = 250;
+    length=5;
+    game_started = false
+    points = 0;
+    if (snake.length >0) {
+        for (let body_part in snake) {
+            container.removeChild(body_part)
+        }
+    }
+}
 
 
 function onKeyDown(key) {
+    if (key.keyCode === 32) {
+     game_started = true
+     update_startscreen()
+    }
     // W Key is 87
     // Up arrow is 87
     if (key.keyCode === 87 || key.keyCode === 38) {
@@ -101,8 +124,7 @@ function sleepFor(sleepDuration){
     var now = new Date().getTime();
     while(new Date().getTime() < now + sleepDuration){ /* Do nothing */ }
 }
-let snake=[]
-let length=5;
+
 
 function addToSnake(x,y,snake){
     const tmp = new PIXI.Sprite(texture_body);    
@@ -115,8 +137,7 @@ function addToSnake(x,y,snake){
         let old = snake.pop()
         container.removeChild(old)
      }
-
-     
+ 
 }
 let step=10;
 let speed=60;
@@ -124,7 +145,6 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-let points = 0;
 let text_child;
 function update_score() {
     if (text_child) container.removeChild(text_child)
@@ -138,37 +158,65 @@ function update_score() {
         })
       );
 }
+let text_start;
 
+function update_startscreen() {
+    if (game_started==false) {
+        if (text_start) container.removeChild(text_start)
+        text_start = container.addChild(
+            new PIXI.Text("Press Space to start", {
+            fontSize: 24,
+            lineHeight: 28,
+            letterSpacing: 0,
+            fill: 0xffffff,
+            align: "center"
+            })
+        ); 
+        text_start.position.set(150,175)
+        
+    } else {
+        if (text_start) container.removeChild(text_start)
+    }
+}
 // Listen for animate update
 app.ticker.add((delta) =>
 {    
-    sleepFor(speed)
-    if (direction=="up" && y>0){
-        y= y-step;
-        addToSnake(x,y,snake);
-    }
-    if (direction=="down" && y<460){
-        y= y+step;
-        addToSnake(x,y,snake);    }
-    if (direction=="left" && x>0){
-        x= x-step;
-        addToSnake(x,y,snake);
-    }
-    if (direction=="right" && x<460){
-        x= x+step;
-        addToSnake(x,y,snake);
+    if (game_started) {
+        sleepFor(speed)
+        if (direction=="up" && y>0){
+            y= y-step;
+            addToSnake(x,y,snake);
+        }
+        if (direction=="down" && y<460){
+            y= y+step;
+            addToSnake(x,y,snake);    }
+        if (direction=="left" && x>0){
+            x= x-step;
+            addToSnake(x,y,snake);
+        }
+        if (direction=="right" && x<460){
+            x= x+step;
+            addToSnake(x,y,snake);
+        }
+        if (y >= 459 || y <= 0 || x >= 459 || x <= 0){
+            end_game()
+        }
+
+        sprite_head.position.x = x;
+        sprite_head.position.y = y;
+        // container.rotation -= 0.01 * delta;
+        const collison = testForAABB(sprite_head, sprite_apple)
+        if (collison) {
+            sprite_apple.x = getRandomInt(0,460)
+            sprite_apple.y = getRandomInt(0,460)
+            length = length + 1
+            points = points+1
+            update_score() 
+            update_startscreen()
+        }
+    } else {
+        update_startscreen()
     }
 
-   sprite_head.position.x = x;
-   sprite_head.position.y = y;
-   // container.rotation -= 0.01 * delta;
-   const collison = testForAABB(sprite_head, sprite_apple)
-   if (collison) {
-    sprite_apple.x = getRandomInt(0,460)
-    sprite_apple.y = getRandomInt(0,460)
-    length = length + 1
-    points = points+1
-    update_score() 
-   }
 });
 app.ticker.speed = .1;

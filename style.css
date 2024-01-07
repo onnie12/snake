@@ -14,6 +14,12 @@ body {
     align-items: center;
 }
 
+canvas {
+    border: grey;
+    border-width: 8px;
+    border-style: solid;
+}
+
 
 .logo {
     width: 20%;
