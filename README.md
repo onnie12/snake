@@ -1,10 +1,10 @@
-# snake
-snake game
+# snake game
 
+You can play the game at https://onnie12.github.io/snake/
+
+You can control the snake with arrow keys or wsad.
 
 ## Todo
 
-- [ ] Add game logo to html page
-- [ ] crash logic
-- [ ] fruit: increase score, make snake longer
-- [ ] press space to start
+- [ ] Crash animation
+- [ ] End screen
