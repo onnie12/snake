@@ -22,7 +22,6 @@ PIXI.Assets.load('https://pixijs.com/assets/spritesheet/mc.json').then(() =>
 });
 app.stage.addChild(container);
 document.addEventListener('keydown', onKeyDown);
-// Create a new texture
 const texture_head = PIXI.Texture.from('snake_head.png');
 const texture_body = PIXI.Texture.from('snake_body.png');
 const texture_apple = PIXI.Texture.from('apple_image.png');
@@ -39,14 +38,6 @@ sprite_body.anchor.x = 0.5;
 sprite_body.anchor.y = 0.5;
 sprite_apple.anchor.x = 0.5;
 sprite_apple.anchor.y = 0.5;
-//container.addChild(sprite_body)
-// Move container to the center
-//container.x = 500;
-//container.y = 500;
-
-// Center bunny sprite in local container coordinates
-//container.pivot.x = 100;
-//container.pivot.y = 100;
 
 const tilingSprite = new PIXI.TilingSprite(
     texture_background,
@@ -86,6 +77,7 @@ function end_game(){
     length=5;
     game_started = false
     points = 0;
+    update_score()
     sprite_head.rotation =  0;
     const explosion = new PIXI.AnimatedSprite(explosionTextures);
     explosion.x = x
@@ -106,6 +98,7 @@ function end_game(){
             container.removeChild(body_part)
         }
     }
+    snake = []
 }
 
 
@@ -114,42 +107,27 @@ function onKeyDown(key) {
      game_started = true
      update_startscreen()
     }
-    // W Key is 87
-    // Up arrow is 87
     if (key.keyCode === 87 || key.keyCode === 38) {
-        // If the W key or the Up arrow is pressed, move the player up.
         if (y != 0) {
-            // Don't move up if the player is at the top of the stage
             direction= "up"
         }
     }
 
-    // S Key is 83
-    // Down arrow is 40
     if (key.keyCode === 83 || key.keyCode === 40) {
-        // If the S key or the Down arrow is pressed, move the player down.
         if (y != container.height - 5) {
-            // Don't move down if the player is at the bottom of the stage
             direction= "down"
         }
     }
 
-    // A Key is 65
-    // Left arrow is 37
     if (key.keyCode === 65 || key.keyCode === 37) {
-        // If the A key or the Left arrow is pressed, move the player to the left.
         if (x != 0) {
-            // Don't move to the left if the player is at the left side of the stage
             direction= "left"
         }
     }
 
-    // D Key is 68
-    // Right arrow is 39
+
     if (key.keyCode === 68 || key.keyCode === 39) {
-        // If the D key or the Right arrow is pressed, move the player to the right.
         if (x != container.width - 5) {
-            // Don't move to the right if the player is at the right side of the stage
             direction= "right"
         }
     }
@@ -200,7 +178,7 @@ function update_startscreen() {
     if (game_started==false) {
         if (text_start) container.removeChild(text_start)
         text_start = container.addChild(
-            new PIXI.Text("Press Space to start", {
+            new PIXI.Text("Snake By Onni \n Press Space to start", {
             fontSize: 24,
             lineHeight: 28,
             letterSpacing: 0,
@@ -214,7 +192,7 @@ function update_startscreen() {
         if (text_start) container.removeChild(text_start)
     }
 }
-// Listen for animate update
+
 app.ticker.add((delta) =>
 {    
     if (game_started) {
@@ -246,7 +224,6 @@ app.ticker.add((delta) =>
 
         sprite_head.position.x = x;
         sprite_head.position.y = y;
-        // container.rotation -= 0.01 * delta;
         const collison = testForAABB(sprite_head, sprite_apple)
         if (collison) {
             sprite_apple.x = getRandomInt(10,490)
